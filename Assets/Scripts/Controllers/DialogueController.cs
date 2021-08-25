@@ -24,6 +24,9 @@ public class DialogueController : MonoBehaviour
     private bool dialogueLock = false;
     private bool mouseDown = false;
 
+    // definition variables
+    private float timeBetweenLetters = 0.02f;
+
     void Awake()
     {
         // Singleton shenanigans
@@ -34,7 +37,6 @@ public class DialogueController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        dialogueAnimator.SetBool("IsOpen", true);
         sentences = new Queue<string>();
     }
 
@@ -61,6 +63,7 @@ public class DialogueController : MonoBehaviour
         {
             sentences.Enqueue(sentence);
         }
+        dialogueAnimator.SetBool("IsOpen", true);        
         dialogueStarted = true;
         ContinueDialogue();
     }
@@ -71,6 +74,7 @@ public class DialogueController : MonoBehaviour
 
         string currentSentence = sentences.Dequeue();
         string[] currentSentenceArray = currentSentence.Split(':');
+        // Debug.Log(currentSentence);
 
         // special sentences here.
         // Ex. pause:500
@@ -89,14 +93,27 @@ public class DialogueController : MonoBehaviour
                     try { PauseDialogue(int.Parse(argument), true); }
                     catch (FormatException) { Debug.Log("Error in DialogueController.ContinueDialogue() - pauseautostart"); }
                     break;
+                case "animation":
+                    int animationID = -1;
+                    try { animationID = int.Parse(argument); }
+                    catch (FormatException) { Debug.Log("Error in DialogueController.ContinueDialogue() - animation"); }
+                    if (animationID == 0) 
+                    { 
+                        CutsceneController.Instance.ToSweat(); 
+                        CutsceneController.Instance.ToApartment();
+                    }
+                    if (animationID == 1) { CutsceneController.Instance.ToAngry(); }
+                    ContinueDialogue();
+                    break;
                 default:
+                    Debug.Log("reached default case for DialogueController.ContinueDialogue(). Probably a typo");
                     break;
             }
         }
         // Normal sentences here
         else
         {
-            // StopAllCoroutines();
+            StopAllCoroutines();
             StartCoroutine(TypeSentence(currentSentence));
         }
     }
@@ -120,7 +137,7 @@ public class DialogueController : MonoBehaviour
         foreach (char letter in sentence.ToCharArray())
         {
             dialogueBoxText.text += letter;
-            yield return null;  // one letter per frame
+            yield return new WaitForSeconds(timeBetweenLetters);
         }
         dialogueLock = false;
     }
