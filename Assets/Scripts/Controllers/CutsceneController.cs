@@ -16,7 +16,11 @@ public class CutsceneController : MonoBehaviour
     public Sprite jahyProud;
     public Sprite jahySweat;
     public Sprite jahyAngry;
+    public SpriteRenderer landlady;
+    public SpriteRenderer textBubble;
     public SpriteRenderer apartment;
+
+    public Animator landladyAnimator;
 
     // definition variables
     float fadeTime = 1.5f;
@@ -33,7 +37,9 @@ public class CutsceneController : MonoBehaviour
         // Set up by turning all sprite renderers invisible
         Vector4 transparent = new Vector4(1f, 1f, 1f, 0f);
         jahy.color = transparent;
+        landlady.color = transparent;
         apartment.color = transparent;
+        textBubble.color = transparent;
         StartCoroutine(Begin());
     }
 
@@ -48,6 +54,8 @@ public class CutsceneController : MonoBehaviour
     public void ToSweat() { FadeTo(jahy, jahySweat); }
     public void ToAngry() { SwitchTo(jahy, jahyAngry); }
     public void ToApartment() { FadeTo(apartment, apartment.sprite); }
+    public void ToLandlady() { FadeTo(landlady, landlady.sprite); }
+    public void ToTextBubble() { SwitchTo(textBubble, textBubble.sprite); StartCoroutine(ShakeLandlady(1.5f)); }
 
     // Methods
     void TriggerDialogue()
@@ -68,6 +76,7 @@ public class CutsceneController : MonoBehaviour
     void SwitchTo(SpriteRenderer renderer, Sprite newSprite)
     {
         renderer.sprite = newSprite;
+        renderer.color = new Vector4(1f, 1f, 1f, 1f);
     }
 
     // Coroutines
@@ -102,6 +111,12 @@ public class CutsceneController : MonoBehaviour
             renderer.color = newColor;
             yield return new WaitForSeconds( (5f * fadeTime) / 255f );
         }
+    }
+    IEnumerator ShakeLandlady(float time)
+    {
+        landladyAnimator.SetBool("talking", true);
+        yield return new WaitForSeconds(time);
+        landladyAnimator.SetBool("talking", false);
     }
     IEnumerator DeleteAfter(SpriteRenderer renderer, float time)
     {

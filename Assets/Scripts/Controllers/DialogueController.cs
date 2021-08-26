@@ -18,6 +18,7 @@ public class DialogueController : MonoBehaviour
     // public variables
     public TextMeshProUGUI dialogueBoxText;
     public Animator dialogueAnimator;
+    public Animator jahyAnimator;
 
     // helper variables
     private bool dialogueStarted = false;
@@ -63,7 +64,6 @@ public class DialogueController : MonoBehaviour
         {
             sentences.Enqueue(sentence);
         }
-        dialogueAnimator.SetBool("IsOpen", true);        
         dialogueStarted = true;
         ContinueDialogue();
     }
@@ -81,28 +81,32 @@ public class DialogueController : MonoBehaviour
         if (currentSentenceArray.Length > 1)
         {
             // Split up the special word and the argument
-            string argument = currentSentenceArray[1];
+            int argument = -1;
+            try { argument = int.Parse(currentSentenceArray[1]); }
+            catch (FormatException) { Debug.Log("Error in DialogueController.ContinueDialogue()"); }
 
             switch (currentSentenceArray[0])
             {
                 case "pause":
-                    try { PauseDialogue(int.Parse(argument), false); }
-                    catch (FormatException) { Debug.Log("Error in DialogueController.ContinueDialogue() - pause"); }
+                    PauseDialogue(argument, false);
                     break;
                 case "pauseautostart":
-                    try { PauseDialogue(int.Parse(argument), true); }
-                    catch (FormatException) { Debug.Log("Error in DialogueController.ContinueDialogue() - pauseautostart"); }
+                    PauseDialogue(argument, true);
                     break;
                 case "animation":
-                    int animationID = -1;
-                    try { animationID = int.Parse(argument); }
-                    catch (FormatException) { Debug.Log("Error in DialogueController.ContinueDialogue() - animation"); }
-                    if (animationID == 0) 
+                    if (argument == 0) 
                     { 
                         CutsceneController.Instance.ToSweat(); 
                         CutsceneController.Instance.ToApartment();
                     }
-                    if (animationID == 1) { CutsceneController.Instance.ToAngry(); }
+                    if (argument == 1) { CutsceneController.Instance.ToAngry(); }
+                    if (argument == 2) { CutsceneController.Instance.ToLandlady(); }
+                    if (argument == 3) { Debug.Log("here"); CutsceneController.Instance.ToTextBubble(); }
+                    ContinueDialogue();
+                    break;
+                case "dialoguebox":
+                    if (argument == 0) { CloseDialogueBox(); }
+                    if (argument == 1) { OpenDialogueBox(); }
                     ContinueDialogue();
                     break;
                 default:
@@ -118,15 +122,16 @@ public class DialogueController : MonoBehaviour
         }
     }
 
+    void OpenDialogueBox() { dialogueAnimator.SetBool("IsOpen", true); }
+    void CloseDialogueBox() { dialogueAnimator.SetBool("IsOpen", false); }
     void PauseDialogue(int time, bool autoStartNext)
     {
         StartCoroutine(Pause(time, autoStartNext));
     }
-
     void EndDialogue()
     {
         //Debug.Log("Ending dialogue");
-        dialogueAnimator.SetBool("IsOpen", false);
+        CloseDialogueBox();
     }
 
     // Coroutines
@@ -134,11 +139,13 @@ public class DialogueController : MonoBehaviour
     {
         dialogueBoxText.text = "";
         dialogueLock = true;
+        jahyAnimator.SetBool("talking", true);
         foreach (char letter in sentence.ToCharArray())
         {
             dialogueBoxText.text += letter;
             yield return new WaitForSeconds(timeBetweenLetters);
         }
+        jahyAnimator.SetBool("talking", false);
         dialogueLock = false;
     }
     IEnumerator Pause(int time, bool autoStartNext)
