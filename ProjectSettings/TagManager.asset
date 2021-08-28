@@ -47,6 +47,12 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Scenery
+    uniqueID: 476752005
+    locked: 0
+  - name: Interactables
+    uniqueID: 3864916135
+    locked: 0
   - name: UI
     uniqueID: 1448935143
     locked: 0
