@@ -13,7 +13,9 @@ public class LevelManager : MonoBehaviour
     // public varaibles
     public int currentLevelNumber = -1;
     public List<ForStageList> victoryConditions;
-
+    // victory canvas
+    public GameObject victoryObjects;
+    public GameObject defeatObjects;
     // helper variables
     public Dictionary<string, bool> victoryFlagsForStage = new Dictionary<string, bool>();
 
@@ -35,6 +37,7 @@ public class LevelManager : MonoBehaviour
     // helper methods
     void SetLevel(int level)
     {
+        TurnOffVictory(); TurnOffDefeat();
         Interactable.UnlockInteractables();
         currentLevelNumber = level;
         ResetDictionary(level);
@@ -50,11 +53,34 @@ public class LevelManager : MonoBehaviour
             victoryFlagsForStage.Add(interactable.tag, false);
         }
     }
+    void TurnOnVictory()
+    {
+        victoryObjects.SetActive(true);
+        // TODO: cute animations
+        /*
+        foreach (Transform child in victoryObjects.transform)
+        {
+            child.gameObject.SetActive(true);
+        }
+        */
+    }
+    void TurnOffVictory()
+    {
+        victoryObjects.SetActive(false);
+    }
+    void TurnOnDefeat()
+    {
+        defeatObjects.SetActive(true);
+        // TODO: cute animations
+    }
+    void TurnOffDefeat()
+    {
+        defeatObjects.SetActive(false);
+    }
     void StopAllCoroutinesGlobally()
     {
         foreach (Coroutine cor in GlobalCoroutineList.GetList())
         {
-            Debug.Log("stopping coroutine");
             StopCoroutine(cor);
         }
     }
@@ -90,12 +116,14 @@ public class LevelManager : MonoBehaviour
     }
     public void Win()
     {
+        TurnOnVictory();
         Interactable.LockInteractables();
         StopAllCoroutinesGlobally();
         Debug.Log("you win!");
     }
     public void GameOver()
     {
+        TurnOnDefeat();
         Interactable.LockInteractables();
         StopAllCoroutinesGlobally();
         Debug.Log("game over!");

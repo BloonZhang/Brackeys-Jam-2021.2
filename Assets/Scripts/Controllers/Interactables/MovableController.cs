@@ -16,7 +16,7 @@ public class MovableController : Interactable
     public Vector3 moveDistance;
 
     // definition variables
-    private float timeToMove = 2.5f;
+    private float timeToMove = 0.5f;
     private float movesPerSecond = 30f; // essentially FPS
 
     // helper variables
