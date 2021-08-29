@@ -4,42 +4,48 @@ using UnityEngine;
 
 public class MovableController : Interactable
 {
+    /* // Inhereted
+    public string tag = "DefaultInteractable";
+    public bool active = true;
+    public virtual void Triggered();
+    public virtual void SetFlag();
+    public virtual void ResetFlag()
+    */
+
     // setting variables
     public Vector3 moveDistance;
 
     // definition variables
-    private float timeToMove = 0.5f;
+    private float timeToMove = 2.5f;
     private float movesPerSecond = 30f; // essentially FPS
 
     // helper variables
     private bool alreadyMoved = false;
     public bool canMoveBack = true;
-    private bool locked = false;
+    private bool selfLocked = false;
 
     public override void OnClick()
     {
-        // Don't do anything if not active
-        if (!active) { return; }
-        // Don't respond if locked
-        if (locked) { return; }
+        // Don't respond if selfLocked
+        if (selfLocked) { return; }
 
         // Move
         if (!alreadyMoved) 
         { 
-            StartCoroutine(Move(moveDistance));
             alreadyMoved = true; 
+            GlobalCoroutineList.Add(StartCoroutine(Move(moveDistance)));
         }
         // Move back
         else if (alreadyMoved && canMoveBack) 
-        { 
-            StartCoroutine(Move(-moveDistance)); 
+        {
             alreadyMoved = false; 
+            GlobalCoroutineList.Add(StartCoroutine(Move(-moveDistance))); 
         }
     }
 
     IEnumerator Move(Vector3 distance)
     {
-        locked = true;
+        selfLocked = true;
         Vector3 destination = transform.position + distance;
         float timer = 0f;
         float timeIncrement = 1f / movesPerSecond;
@@ -50,7 +56,11 @@ public class MovableController : Interactable
             timer += timeIncrement;
         }
         transform.position = destination;
-        locked = false;
+        selfLocked = false;
+
+        // If the alreadyMoved flag is true, then we were moving it initially, so call Triggered() and SetFlag()
+        if (alreadyMoved) { Triggered(); SetFlag(); }
+        else { ResetFlag(); }
     }
 
 }

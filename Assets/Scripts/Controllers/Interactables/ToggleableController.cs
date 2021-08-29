@@ -7,6 +7,9 @@ public class ToggleableController : Interactable
     /* // Inhereted
     public string tag = "DefaultInteractable";
     public bool active = true;
+    public virtual void Triggered();
+    public virtual void SetFlag();
+    public virtual void ResetFlag()
     */
 
     // Components
@@ -33,15 +36,13 @@ public class ToggleableController : Interactable
 
     public override void OnClick()
     {
-        // Don't do anything if not active
-        if (!active) { return; }
-        
         // Toggle
         if (!toggled) 
         { 
             renderer.sprite = toggledSprite; 
             collider.points = toggledCollider.points;
             toggled = true; 
+            Triggered(); SetFlag();
         }
         // Toggle back
         else if (toggled && canToggleBack) 
@@ -49,6 +50,7 @@ public class ToggleableController : Interactable
             renderer.sprite = originalSprite;
             collider.points = originalCollider.points;
             toggled = false; 
+            ResetFlag();
         }
     }
 
